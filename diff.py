@@ -24,15 +24,19 @@ def textDiff(a, b):
             # @@ need to do something more complicated here
             # call textDiff but not for html, but for some html... ugh
             # gonna cop-out for now
-            out.append('<del class="diff modified">'+''.join(a[e[1]:e[2]]) + '</del><ins class="diff modified">'+''.join(b[e[3]:e[4]])+"</ins>")
+            out.append('<span class="red">'+''.join(a[e[1]:e[2]]) + '</span><span class="green">'+''.join(b[e[3]:e[4]])+"</span>")
         elif e[0] == "delete":
-            out.append('<del class="diff">'+ ''.join(a[e[1]:e[2]]) + "</del>")
+            out.append('<span class="red">'+ ''.join(a[e[1]:e[2]]) + "</span>")
         elif e[0] == "insert":
-            out.append('<ins class="diff">'+''.join(b[e[3]:e[4]]) + "</ins>")
+            out.append('<span class="green">'+''.join(b[e[3]:e[4]]) + "</span>")
         elif e[0] == "equal":
-            out.append(''.join(b[e[3]:e[4]]))
+            if e[1] == e[3] and e[2] == e[4]:
+                out.append(''.join(b[e[3]:e[4]]))
+            else:
+                out.append('<span class="red">'+''.join(a[e[1]:e[2]]) + '</span><span class="yellow">'+''.join(b[e[3]:e[4]])+"</span>")
         else: 
-            raise "Um, something's broken. I didn't expect a '" + `e[0]` + "'."
+            print("Um, something's broken. I didn't expect a '" + e[0] + "'.")
+            raise
     return ''.join(out)
 
 def html2list(x, b=0):
@@ -55,15 +59,15 @@ def html2list(x, b=0):
             elif c in string.whitespace: out.append(cur+c); cur = ''
             else: cur += c
     out.append(cur)
-    return filter(lambda x: x is not '', out)
+    return list(filter(lambda x: x is not '', out))
 
 if __name__ == '__main__':
     import sys
     try:
         a, b = sys.argv[1:3]
     except ValueError:
-        print "htmldiff: highlight the differences between two html files"
-        print "usage: " + sys.argv[0] + " a b"
+        print("htmldiff: highlight the differences between two html files")
+        print("usage: " + sys.argv[0] + " a b")
         sys.exit(1)
-    print textDiff(open(a).read(), open(b).read())
+    print(textDiff(open(a).read(), open(b).read()))
     
