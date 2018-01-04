@@ -1,0 +1,10 @@
+{% extends "template_page.html" %}
+{% block content %}
+  <div class="b-page__line container">
+    <form class="b-differform b-differform_margined" method="post" action="/result">
+      <textarea class="b-differform__input b-differform__input_margined form-control" rows="13"></textarea>
+      <textarea class="b-differform__input b-differform__input_margined form-control" rows="13"></textarea>
+      <button type="submit" class="b-differform__submit btn btn-primary btn-lg center-block">Различить</button>
+    </form>
+  </div>
+{% endblock %}
