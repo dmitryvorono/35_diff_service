@@ -13,4 +13,5 @@ def show_result_diff():
     initial_text = request.form['initial_text']
     emended_text = request.form['emended_text']
     diff_txt = diff.textDiff(initial_text, emended_text)
+    print(diff_txt)
     return render_template('result.html', diff_txt=diff_txt)

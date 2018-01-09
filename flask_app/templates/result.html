@@ -1,11 +1,9 @@
 {% extends "template_page.html" %}
 {% block content %}
     <div class="b-page__line container">
-        <div class="b-result">
-            {{ diff_txt|safe }}
-        </div>
+        <pre class="b-result">{{ diff_txt|safe }}</pre>
     </div>
     <div class="b-page__line container">
-        <button type="button" class="b-differform__submit btn btn-primary btn-lg center-block">Назад</button>
+        <button type="button" class="b-differform__submit btn btn-primary btn-lg center-block" onclick="window.history.back();">Назад</button>
     </div>
 {% endblock %}

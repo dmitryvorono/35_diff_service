@@ -1,12 +1,14 @@
 #!/usr/bin/python
 """HTML Diff: http://www.aaronsw.com/2002/diff
-Rough code, badly documented. Send me comments and patches."""
+Rough span, badly documented. Send me comments and patches."""
 
 __author__ = 'Aaron Swartz <me@aaronsw.com>'
 __copyright__ = '(C) 2003 Aaron Swartz. GNU GPL 2 or 3.'
 __version__ = '0.22'
 
 import difflib, string
+import html
+
 
 def isTag(x): return x[0] == "<" and x[-1] == ">"
 
@@ -24,16 +26,16 @@ def textDiff(a, b):
             # @@ need to do something more complicated here
             # call textDiff but not for html, but for some html... ugh
             # gonna cop-out for now
-            out.append('<span class="red">'+''.join(a[e[1]:e[2]]) + '</span><span class="green">'+''.join(b[e[3]:e[4]])+"</span>")
+            out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="green">'+html.escape(''.join(b[e[3]:e[4]]))+"</span>")
         elif e[0] == "delete":
-            out.append('<span class="red">'+ ''.join(a[e[1]:e[2]]) + "</span>")
+            out.append('<span class="red">'+ html.escape(''.join(a[e[1]:e[2]])) + "</span>")
         elif e[0] == "insert":
-            out.append('<span class="green">'+''.join(b[e[3]:e[4]]) + "</span>")
+            out.append('<span class="green">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         elif e[0] == "equal":
             if e[1] == e[3] and e[2] == e[4]:
-                out.append(''.join(b[e[3]:e[4]]))
+                out.append('<span>' + html.escape(''.join(b[e[3]:e[4]])) + '</span>')
             else:
-                out.append('<span class="red">'+''.join(a[e[1]:e[2]]) + '</span><span class="yellow">'+''.join(b[e[3]:e[4]])+"</span>")
+                out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="yellow">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         else: 
             print("Um, something's broken. I didn't expect a '" + e[0] + "'.")
             raise
