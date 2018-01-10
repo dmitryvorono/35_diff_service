@@ -16,11 +16,17 @@ def textDiff(a, b):
     """Takes in strings a and b and returns a human-readable HTML diff."""
 
     out = []
-    a, b = html2list(a), html2list(b)
+    #a, b = html2list(a), html2list(b)
+    a, b = a.split('\n'), b.split('\n')
     try: # autojunk can cause malformed HTML, but also speeds up processing.
         s = difflib.SequenceMatcher(None, a, b, autojunk=False)
     except TypeError:
         s = difflib.SequenceMatcher(None, a, b)
+      
+    for tag, i1, i2, j1, j2 in s.get_opcodes():
+        print('{:7}   a[{}:{}] --> b[{}:{}] {!r:>8} --> {!r}'.format(
+            tag, i1, i2, j1, j2, a[i1:i2], b[j1:j2]))
+    
     for e in s.get_opcodes():
         if e[0] == "replace":
             # @@ need to do something more complicated here
@@ -32,10 +38,10 @@ def textDiff(a, b):
         elif e[0] == "insert":
             out.append('<span class="green">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         elif e[0] == "equal":
-            if e[1] == e[3] and e[2] == e[4]:
-                out.append('<span>' + html.escape(''.join(b[e[3]:e[4]])) + '</span>')
-            else:
-                out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="yellow">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
+            #if e[1] == e[3] and e[2] == e[4]:
+            out.append('<span>' + html.escape(''.join(b[e[3]:e[4]])) + '</span>')
+            #else:
+            #    out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="yellow">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         else: 
             print("Um, something's broken. I didn't expect a '" + e[0] + "'.")
             raise
