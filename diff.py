@@ -12,17 +12,18 @@ import html
 
 def textDiff(a, b):
     """Takes in strings a and b and returns a human-readable HTML diff."""
-
     out = []
-    a, b = a.split('\n'), b.split('\n')
+    a = a.splitlines(True)
+    b = b.splitlines(True)
     try: # autojunk can cause malformed HTML, but also speeds up processing.
         s = difflib.SequenceMatcher(None, a, b, autojunk=False)
     except TypeError:
         s = difflib.SequenceMatcher(None, a, b)
-     
+    
     for tag, i1, i2, j1, j2 in s.get_opcodes():
         print('{:7}   a[{}:{}] --> b[{}:{}] {!r:>8} --> {!r}'.format(
             tag, i1, i2, j1, j2, a[i1:i2], b[j1:j2]))
+    
     opcodes = s.get_opcodes()
     find_moved_blocks(opcodes, a, b)
     for e in opcodes:
@@ -70,4 +71,3 @@ if __name__ == '__main__':
         print("usage: " + sys.argv[0] + " a b")
         sys.exit(1)
     print(textDiff(open(a).read(), open(b).read()))
-    
