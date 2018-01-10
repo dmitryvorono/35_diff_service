@@ -10,64 +10,56 @@ import difflib, string
 import html
 
 
-def isTag(x): return x[0] == "<" and x[-1] == ">"
-
 def textDiff(a, b):
     """Takes in strings a and b and returns a human-readable HTML diff."""
 
     out = []
-    #a, b = html2list(a), html2list(b)
     a, b = a.split('\n'), b.split('\n')
     try: # autojunk can cause malformed HTML, but also speeds up processing.
         s = difflib.SequenceMatcher(None, a, b, autojunk=False)
     except TypeError:
         s = difflib.SequenceMatcher(None, a, b)
-      
+     
     for tag, i1, i2, j1, j2 in s.get_opcodes():
         print('{:7}   a[{}:{}] --> b[{}:{}] {!r:>8} --> {!r}'.format(
             tag, i1, i2, j1, j2, a[i1:i2], b[j1:j2]))
-    
-    for e in s.get_opcodes():
+    opcodes = s.get_opcodes()
+    find_moved_blocks(opcodes, a, b)
+    for e in opcodes:
         if e[0] == "replace":
             # @@ need to do something more complicated here
             # call textDiff but not for html, but for some html... ugh
             # gonna cop-out for now
             out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="green">'+html.escape(''.join(b[e[3]:e[4]]))+"</span>")
-        elif e[0] == "delete":
+        elif e[0] == "delete" or e[0] == 'delete_move':
             out.append('<span class="red">'+ html.escape(''.join(a[e[1]:e[2]])) + "</span>")
         elif e[0] == "insert":
             out.append('<span class="green">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         elif e[0] == "equal":
-            #if e[1] == e[3] and e[2] == e[4]:
             out.append('<span>' + html.escape(''.join(b[e[3]:e[4]])) + '</span>')
-            #else:
-            #    out.append('<span class="red">'+html.escape(''.join(a[e[1]:e[2]])) + '</span><span class="yellow">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
+        elif e[0] == 'move':
+            out.append('<span class="yellow">'+html.escape(''.join(b[e[3]:e[4]])) + "</span>")
         else: 
-            print("Um, something's broken. I didn't expect a '" + e[0] + "'.")
-            raise
+            raise("Um, something's broken. I didn't expect a '" + e[0] + "'.")
     return ''.join(out)
 
-def html2list(x, b=0):
-    mode = 'char'
-    cur = ''
-    out = []
-    for c in x:
-        if mode == 'tag':
-            if c == '>': 
-                if b: cur += ']'
-                else: cur += c
-                out.append(cur); cur = ''; mode = 'char'
-            else: cur += c
-        elif mode == 'char':
-            if c == '<': 
-                out.append(cur)
-                if b: cur = '['
-                else: cur = c
-                mode = 'tag'
-            elif c in string.whitespace: out.append(cur+c); cur = ''
-            else: cur += c
-    out.append(cur)
-    return list(filter(lambda x: x is not '', out))
+
+def find_moved_blocks(opcodes, a, b):
+    for opcode in opcodes:
+        if opcode[0] != 'insert':
+            continue
+        equal_block = find_equal_deleted_block(b[opcode[3]:opcode[4]], opcodes, a)
+        if not equal_block:
+            continue
+        opcodes[opcodes.index(opcode)] = ('move', opcode[1], opcode[2], opcode[3], opcode[4])
+        opcodes[opcodes.index(equal_block)] = ('delete_move', equal_block[1], equal_block[2], equal_block[3], equal_block[4])
+
+
+def find_equal_deleted_block(inserted_text, opcodes, a):
+    for opcode in opcodes:
+        if opcode[0] == 'delete' and inserted_text == a[opcode[1]:opcode[2]]:
+            return opcode
+
 
 if __name__ == '__main__':
     import sys
