@@ -1,7 +1,5 @@
 # 35_diff_service
 
-[TODO]
-
 This project is designed to show the difference between two text documents, like `git diff`.
 
 [Open app](https://floating-earth-32904.herokuapp.com)
