@@ -25,7 +25,12 @@ class TestDiff(unittest.TestCase):
         initial_text = '<p>Paragraph 1</p>'
         emended_text = '<p>Paragraph 2</p>\n<p>Paragraph 1</p>'
         self.assertEqual(diff.textDiff(initial_text, emended_text), '<span class="green">&lt;p&gt;Paragraph 2&lt;/p&gt;\n</span><span>&lt;p&gt;Paragraph 1&lt;/p&gt;</span>')
-
+    
+    
+    def test_textDiff_replace_string(self):
+        initial_text = '<p>Paragraph 1</p>'
+        emended_text = '<p>Paragraph 1</p>\n<p>Paragraph 2</p>'
+        self.assertEqual(diff.textDiff(initial_text, emended_text), '<span class="red">&lt;p&gt;Paragraph 1&lt;/p&gt;</span><span class="green">&lt;p&gt;Paragraph 1&lt;/p&gt;\n&lt;p&gt;Paragraph 2&lt;/p&gt;</span>')
 
 if __name__ == '__main__':
     unittest.main()
