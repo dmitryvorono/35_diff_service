@@ -38,13 +38,13 @@ def render_text_diff(initial_text, emended_text):
 def get_opcodes(initial_text, emended_text):
     try:
         seq_matcher = difflib.SequenceMatcher(None, initial_text,
-                                    emended_text, autojunk=False)
+                                              emended_text, autojunk=False)
     except TypeError:
         seq_matcher = difflib.SequenceMatcher(None, initial_text, emended_text)
     opcodes = seq_matcher.get_opcodes()
     find_moved_blocks(opcodes, initial_text, emended_text)
     return opcodes
-    
+
 
 def find_moved_blocks(opcodes, initial_text, emended_text):
     for opcode in opcodes:
