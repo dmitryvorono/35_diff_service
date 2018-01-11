@@ -8,31 +8,35 @@ def render_text_diff(initial_text, emended_text):
     splited_emended_text = emended_text.splitlines(True)
     opcodes = get_opcodes(splited_initial_text, splited_emended_text)
     for opcode in opcodes:
-        if opcode[0] == "replace":
-            out.append('<span class="red">' +
-                       html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
-                       '</span><span class="green">' +
-                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        elif opcode[0] == "delete" or opcode[0] == 'delete_move':
-            out.append('<span class="red">' +
-                       html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
-                       "</span>")
-        elif opcode[0] == "insert":
-            out.append('<span class="green">' +
-                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        elif opcode[0] == "equal":
-            out.append('<span>' +
-                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                       '</span>')
-        elif opcode[0] == 'move':
-            out.append('<span class="yellow">' +
-                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        else:
-            raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
+        out.append(render_block(opcode, splited_initial_text, splited_emended_text))
     return ''.join(out)
+
+
+def render_block(opcode, splited_initial_text, splited_emended_text):
+    if opcode[0] == "replace":
+        return ('<span class="red">' +
+                html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
+                '</span><span class="green">' +
+                html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                "</span>")
+    elif opcode[0] == "delete" or opcode[0] == 'delete_move':
+        return ('<span class="red">' +
+                html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
+                "</span>")
+    elif opcode[0] == "insert":
+        return ('<span class="green">' +
+                html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                "</span>")
+    elif opcode[0] == "equal":
+        return ('<span>' +
+                html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                '</span>')
+    elif opcode[0] == 'move':
+        return ('<span class="yellow">' +
+                html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                "</span>")
+    else:
+        raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
 
 
 def get_opcodes(initial_text, emended_text):
