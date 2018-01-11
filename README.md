@@ -21,7 +21,13 @@ $ pip install -r requirements.txt # alternatively try pip3
 ```
 Remember, it is recommended to use [virtualenv/venv](https://devman.org/encyclopedia/pip/pip_virtualenv/) for better isolation.
 
-Next, run app:
+Next, run tests:
+
+```bash
+$ python -m unittest tests/test.py
+```
+
+If all tests will not failed, run application:
 
 ```bash
 $ python server.py
