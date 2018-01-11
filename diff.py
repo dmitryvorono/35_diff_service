@@ -2,10 +2,40 @@ import difflib
 import html
 
 
-def textDiff(initial_text, emended_text):
+def render_text_diff(initial_text, emended_text):
     out = []
-    initial_text = initial_text.splitlines(True)
-    emended_text = emended_text.splitlines(True)
+    splited_initial_text = initial_text.splitlines(True)
+    splited_emended_text = emended_text.splitlines(True)
+    opcodes = get_opcodes(splited_initial_text, splited_emended_text)
+    for opcode in opcodes:
+        if opcode[0] == "replace":
+            out.append('<span class="red">' +
+                       html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
+                       '</span><span class="green">' +
+                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                       "</span>")
+        elif opcode[0] == "delete" or opcode[0] == 'delete_move':
+            out.append('<span class="red">' +
+                       html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
+                       "</span>")
+        elif opcode[0] == "insert":
+            out.append('<span class="green">' +
+                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                       "</span>")
+        elif opcode[0] == "equal":
+            out.append('<span>' +
+                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                       '</span>')
+        elif opcode[0] == 'move':
+            out.append('<span class="yellow">' +
+                       html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
+                       "</span>")
+        else:
+            raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
+    return ''.join(out)
+
+
+def get_opcodes(initial_text, emended_text):
     try:
         seq_matcher = difflib.SequenceMatcher(None, initial_text,
                                     emended_text, autojunk=False)
@@ -13,33 +43,8 @@ def textDiff(initial_text, emended_text):
         seq_matcher = difflib.SequenceMatcher(None, initial_text, emended_text)
     opcodes = seq_matcher.get_opcodes()
     find_moved_blocks(opcodes, initial_text, emended_text)
-    for opcode in opcodes:
-        if opcode[0] == "replace":
-            out.append('<span class="red">' +
-                       html.escape(''.join(initial_text[opcode[1]:opcode[2]])) +
-                       '</span><span class="green">' +
-                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        elif opcode[0] == "delete" or opcode[0] == 'delete_move':
-            out.append('<span class="red">' +
-                       html.escape(''.join(initial_text[opcode[1]:opcode[2]])) +
-                       "</span>")
-        elif opcode[0] == "insert":
-            out.append('<span class="green">' +
-                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        elif opcode[0] == "equal":
-            out.append('<span>' +
-                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
-                       '</span>')
-        elif opcode[0] == 'move':
-            out.append('<span class="yellow">' +
-                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
-                       "</span>")
-        else:
-            raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
-    return ''.join(out)
-
+    return opcodes
+    
 
 def find_moved_blocks(opcodes, initial_text, emended_text):
     for opcode in opcodes:
@@ -69,4 +74,4 @@ if __name__ == '__main__':
         print("htmldiff: highlight the differences between two html files")
         print("usage: " + sys.argv[0] + " a b")
         sys.exit(1)
-    print(textDiff(open(initial_text).read(), open(emended_text).read()))
+    print(render_text_diff(open(initial_text).read(), open(emended_text).read()))
