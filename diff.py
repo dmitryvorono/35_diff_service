@@ -7,37 +7,37 @@ def textDiff(initial_text, emended_text):
     initial_text = initial_text.splitlines(True)
     emended_text = emended_text.splitlines(True)
     try:
-        s = difflib.SequenceMatcher(None, initial_text,
+        seq_matcher = difflib.SequenceMatcher(None, initial_text,
                                     emended_text, autojunk=False)
     except TypeError:
-        s = difflib.SequenceMatcher(None, initial_text, emended_text)
-    opcodes = s.get_opcodes()
+        seq_matcher = difflib.SequenceMatcher(None, initial_text, emended_text)
+    opcodes = seq_matcher.get_opcodes()
     find_moved_blocks(opcodes, initial_text, emended_text)
-    for e in opcodes:
-        if e[0] == "replace":
+    for opcode in opcodes:
+        if opcode[0] == "replace":
             out.append('<span class="red">' +
-                       html.escape(''.join(initial_text[e[1]:e[2]])) +
+                       html.escape(''.join(initial_text[opcode[1]:opcode[2]])) +
                        '</span><span class="green">' +
-                       html.escape(''.join(emended_text[e[3]:e[4]])) +
+                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
                        "</span>")
-        elif e[0] == "delete" or e[0] == 'delete_move':
+        elif opcode[0] == "delete" or opcode[0] == 'delete_move':
             out.append('<span class="red">' +
-                       html.escape(''.join(initial_text[e[1]:e[2]])) +
+                       html.escape(''.join(initial_text[opcode[1]:opcode[2]])) +
                        "</span>")
-        elif e[0] == "insert":
+        elif opcode[0] == "insert":
             out.append('<span class="green">' +
-                       html.escape(''.join(emended_text[e[3]:e[4]])) +
+                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
                        "</span>")
-        elif e[0] == "equal":
+        elif opcode[0] == "equal":
             out.append('<span>' +
-                       html.escape(''.join(emended_text[e[3]:e[4]])) +
+                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
                        '</span>')
-        elif e[0] == 'move':
+        elif opcode[0] == 'move':
             out.append('<span class="yellow">' +
-                       html.escape(''.join(emended_text[e[3]:e[4]])) +
+                       html.escape(''.join(emended_text[opcode[3]:opcode[4]])) +
                        "</span>")
         else:
-            raise("Um, something's broken. I didn't expect a '" + e[0] + "'.")
+            raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
     return ''.join(out)
 
 
