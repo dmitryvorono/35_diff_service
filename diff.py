@@ -1,5 +1,6 @@
 import difflib
 import html
+from config import DIFF_CONFIG
 
 
 def render_text_diff(initial_text, emended_text):
@@ -13,31 +14,25 @@ def render_text_diff(initial_text, emended_text):
 
 
 def render_block(opcode, splited_initial_text, splited_emended_text):
-    if opcode[0] == "replace":
-        rendered_text = ('<span class="red">' +
-                         html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
-                         '</span><span class="green">' +
-                         html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                         "</span>")
-    elif opcode[0] == "delete" or opcode[0] == 'delete_move':
-        rendered_text = ('<span class="red">' +
-                         html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])) +
-                         "</span>")
-    elif opcode[0] == "insert":
-        rendered_text = ('<span class="green">' +
-                         html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                         "</span>")
-    elif opcode[0] == "equal":
-        rendered_text = ('<span>' +
-                         html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                         '</span>')
-    elif opcode[0] == 'move':
-        rendered_text = ('<span class="yellow">' +
-                         html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])) +
-                         "</span>")
+    if opcode[0] == 'replace':
+        rendered_text = ''.join([make_html_tag_for_diff_block('delete', html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]]))),
+                                 make_html_tag_for_diff_block('insert', html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])))])
+    elif opcode[0] == 'delete' or opcode[0] == 'delete_move':
+        rendered_text = make_html_tag_for_diff_block(opcode[0], html.escape(''.join(splited_initial_text[opcode[1]:opcode[2]])))
+    elif opcode[0] == 'move' or opcode[0] == 'equal' or opcode[0] == 'insert':
+        rendered_text = make_html_tag_for_diff_block(opcode[0], html.escape(''.join(splited_emended_text[opcode[3]:opcode[4]])))
     else:
         raise("Um, something's broken. I didn't expect a '" + opcode[0] + "'.")
     return rendered_text
+
+
+def make_html_tag_for_diff_block(type_block, text):
+    if type_block in DIFF_CONFIG:
+        return '<{0} {1}>{2}</{0}>'.format(DIFF_CONFIG['tag'],
+                                           DIFF_CONFIG[type_block],
+                                           text)
+    else:
+        return '<{0}>{1}</{0}>'.format(DIFF_CONFIG['tag'], text)
 
 
 def get_opcodes(initial_text, emended_text):
