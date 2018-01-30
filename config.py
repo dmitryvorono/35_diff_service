@@ -5,4 +5,4 @@ DIFF_CONFIG = {'tag': 'span',
                'insert': 'class="green"',
                'delete': 'class="red"',
                'delete_move': 'class="red"',
-               'move': 'class="yellow"',}
+               'move': 'class="yellow"', }
