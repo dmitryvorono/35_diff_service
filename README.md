@@ -33,7 +33,16 @@ If all tests will not failed, run application:
 $ python server.py
 ```
 
-Project will running on http://0.0.0.0:8080/
+Project will running on http://0.0.0.0:8080/ (see config below to change it)
+
+# Configuration app
+
+The application configuration is in the file `config.py`. It contains:
+
+* `SITE_IP_ADDRESS` - application IP address
+* `SITE_PORT` - application port
+* `DEBUG` - flask debug mode (1/0)
+* `DIFF_CONFIG` - config diff module
 
 # Project Goals
 
